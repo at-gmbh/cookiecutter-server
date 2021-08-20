@@ -1,3 +1,6 @@
 # This file defines the requirements for a productive project deployment.
 # It should not contain dependencies for tests, developer tools, etc. (see requirements-dev.txt)
-typer~=0.2.1
+typer~=0.3.2
+cookiecutter~=1.7.3
+watchdog~=2.1.4
+dirsync~=2.2.5

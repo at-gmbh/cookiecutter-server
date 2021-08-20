@@ -64,3 +64,6 @@ venv*/
 .vscode/
 .idea/
 *.iws
+
+# default server output
+serve
