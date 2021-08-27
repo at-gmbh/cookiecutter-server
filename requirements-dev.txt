@@ -4,3 +4,4 @@
 pre-commit~=2.14
 pytest~=6.2.4
 pytest-cov~=2.12.1
+flake8~=3.9.2

@@ -85,7 +85,7 @@ class CookiecutterServer:
         # start the watchdog
         self.observer.schedule(self.handler, self.template_dir, recursive=True)
         self.observer.start()
-        typer.echo(f"template is ready, watching for changes")
+        typer.echo("template is ready, watching for changes")
         try:
             while not self.signal_stop:
                 time.sleep(0.1)
