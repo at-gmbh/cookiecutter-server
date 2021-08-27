@@ -68,12 +68,15 @@ class CookiecutterServer:
         ('cookiecutter.yaml', yaml),
     ]
 
-    def __init__(self, template_dir: Path, output_dir: Path, config_file: Path = None):
+    def __init__(self, template_dir: Path, output_dir: Path, config_file: Path = None,
+                 min_delay=5.0):
         self.template_dir = template_dir
         self.output_dir = output_dir
         self.config_file = self._init_config(template_dir, config_file)
         self.observer = Observer()
-        self.handler = TemplateUpdate(self.template_dir, self.output_dir, self.config_file)
+        self.handler = TemplateUpdate(
+            self.template_dir, self.output_dir, self.config_file, min_delay)
+        self.signal_stop = False
 
     def serve(self):
         # render the template for the first time, if the output directory does not exist
@@ -82,13 +85,15 @@ class CookiecutterServer:
         # start the watchdog
         self.observer.schedule(self.handler, self.template_dir, recursive=True)
         self.observer.start()
-        logger.info(f"Cookiecutter Server is watching '{self.template_dir}' for changes")
+        typer.echo(f"template is ready, watching for changes")
         try:
-            while True:
+            while not self.signal_stop:
                 time.sleep(0.1)
         except KeyboardInterrupt:
+            pass
+        finally:
             self.observer.stop()
-        self.observer.join()
+            self.observer.join(1.0)
         typer.echo(f"{Fore.YELLOW}cookiecutter-server{Fore.RESET} terminated")
 
     @classmethod
