@@ -67,3 +67,4 @@ venv*/
 
 # default server output
 serve
+cookiecutter-server.yml
