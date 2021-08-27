@@ -70,6 +70,7 @@ setup(
     url="",
     packages=find_packages("src"),
     package_dir={"": "src"},
+    entry_points={'console_scripts': ['cc_server = cc_server.main:app']},
     long_description=read('README.md'),
     install_requires=[],
     tests_require=[
