@@ -3,6 +3,7 @@ import shutil
 import subprocess
 import sys
 from distutils.cmd import Command
+from pathlib import Path
 from runpy import run_path
 
 from setuptools import find_packages, setup
@@ -13,7 +14,7 @@ __version__ = run_path('src/cc_server/version.py')['__version__']
 
 def read(fname):
     """Utility function to read the README file."""
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+    return (Path(__file__).parent / fname).read_text('utf-8')
 
 
 class DistCommand(Command):
@@ -66,8 +67,8 @@ setup(
     author="Sebastian Straub",
     author_email="sebastian.straub@alexanderthamm.com",
     description="A local development server to get live previews of cookiecutter templates",
-    license="proprietary",
-    url="",
+    license="Apache License 2.0",
+    url="https://github.com/at-gmbh/cookiecutter-server",
     packages=find_packages("src"),
     package_dir={"": "src"},
     entry_points={'console_scripts': ['cc_server = cc_server.main:app']},
