@@ -35,7 +35,7 @@ def version_callback(version: bool):
 
 TemplatePath = typer.Argument(
     ...,
-    help="cookiecutter template source folder (defaults to current folder)",
+    help="cookiecutter template source folder",
     exists=True, file_okay=False, dir_okay=True, readable=True, resolve_path=True)
 OutputPath = typer.Option(
     './serve/', '-o', '--output',
