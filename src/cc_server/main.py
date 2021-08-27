@@ -7,6 +7,7 @@ from typing import Dict, Optional, Union
 
 import typer
 import yaml
+from colorama import Fore
 from cookiecutter.main import cookiecutter
 from dirsync import sync
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
@@ -18,7 +19,7 @@ from cc_server import __title__, __version__
 logging.basicConfig(format="%(asctime)s.%(msecs)03d [%(levelname)s]: %(message)s",
                     level=logging.WARNING)
 logger = logging.getLogger('cc_server')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARNING)
 
 
 app = typer.Typer(
@@ -33,27 +34,28 @@ def version_callback(version: bool):
 
 
 TemplatePath = typer.Argument(
-    '.',
-    help="cookiecutter template source folder (defaults to current folder)")
+    ...,
+    help="cookiecutter template source folder (defaults to current folder)",
+    exists=True, file_okay=False, dir_okay=True, readable=True, resolve_path=True)
 OutputPath = typer.Option(
     './serve/', '-o', '--output',
-    help="output folder (defaults to folder 'serve' under the current folder)")
+    help="output folder (defaults to folder 'serve' under the current folder)",
+    exists=False, file_okay=False, dir_okay=True, resolve_path=True)
 Version = typer.Option(
     None, '-v', '--version', callback=version_callback, is_eager=True,
     help="print the program version and exit")
 
 
 @app.command()
-def main(template: str = TemplatePath, output: str = OutputPath, version: bool = Version):
+def main(template: Path = TemplatePath, output: Path = OutputPath, version: bool = Version):
     """
     A local development server to get live previews of cookiecutter templates
     """
-    template_dir = Path(template).resolve()
-    output_dir = Path(output).resolve()
-    logger.info(f"starting cookiecutter-server (template: {template_dir}, output: {output_dir})")
+    typer.echo(f"starting {Fore.YELLOW}cookiecutter-server{Fore.RESET} "
+               f"(template: '{template}', output: '{output}')")
     server = CookiecutterServer(
-        template_dir=Path(template).resolve(),
-        output_dir=Path(output).resolve())
+        template_dir=template,
+        output_dir=output)
     server.serve()
 
 
@@ -83,11 +85,11 @@ class CookiecutterServer:
         logger.info(f"Cookiecutter Server is watching '{self.template_dir}' for changes")
         try:
             while True:
-                time.sleep(0.5)
+                time.sleep(0.1)
         except KeyboardInterrupt:
             self.observer.stop()
         self.observer.join()
-        logger.info("Cookiecutter Server terminated")
+        typer.echo(f"{Fore.YELLOW}cookiecutter-server{Fore.RESET} terminated")
 
     @classmethod
     def _init_config(cls, template_dir: Path, config_file: Path = None):
@@ -136,7 +138,8 @@ class TemplateUpdate(FileSystemEventHandler):
             now = time.time()
             # don't update too frequently
             if now - self.last_sync > self.min_delay:
-                logger.info(f"updating due to change in {path.relative_to(self.template_dir)}")
+                typer.echo(f"{Fore.GREEN}updating{Fore.RESET} due to change in "
+                           f"'{path.relative_to(self.template_dir)}'")
                 self.settings = self.read_config()
                 self.sync_output()
                 self.last_sync = now
@@ -144,14 +147,15 @@ class TemplateUpdate(FileSystemEventHandler):
     def read_config(self) -> Optional[Dict]:
         if self.config_file.is_file():
             with self.config_file.open('r') as fp:
-                return yaml.load(fp)
+                return yaml.load(fp, Loader=FullLoader)
         else:
             logger.warning(f"config file {self.config_file} was not found")
 
     def sync_output(self):
         with TemporaryDirectory() as temp_dir:
             self.render_template(temp_dir)
-            sync(temp_dir, self.output_dir, 'sync', content=True, purge=True, logger=logger)
+            sync(temp_dir, self.output_dir, 'sync', content=True, purge=True,
+                 ignore=['.git'], logger=logger)
         logger.debug("file sync complete")
 
     def render_template(self, output_dir: Union[str, Path]):
