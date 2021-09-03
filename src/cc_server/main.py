@@ -60,6 +60,26 @@ def main(template: Path = TemplatePath, output: Path = OutputPath, version: bool
 
 
 class CookiecutterServer:
+    """
+    cookiecutter server: get live previews of cookiecutter templates while you're working on them.
+
+    Creates an instance of the cookiecutter template in `template_dir` and writes it
+    to `output_dir`. The settings for the template are specified by `config_file`, if provided,
+    otherwise a file named `cookiecutter-server.yml` is generated in the template folder.
+
+    Cookiecutter server is watching for changes in the template server. When a file is changed,
+    the template will be rendered and all changed files will be updated in the output directory.
+    The same applies for the config file: when you change a config parameter, the rendered
+    template will be updated as well.
+
+    :param template_dir: the folder where the cookiecutter template is located
+           (must contain a cookiecutter.json or cookiecutter.yml)
+    :param output_dir: the folder where the live preview shall be served
+    :param config_file: settings for the cookiecutter template (default settings will be stored
+           in cookiecutter-server.yml, when this file is not provided)
+    :param min_delay: wait at least this many seconds, before the template will be rendered again
+           (prevents high disk & cpu load when changes are detected in quick succession)
+    """
 
     default_config = 'cookiecutter-server.yml'
     template_files = [
@@ -125,6 +145,14 @@ class CookiecutterServer:
 
 
 class TemplateUpdate(FileSystemEventHandler):
+    """
+    ...
+
+    :param template_dir: the folder where the cookiecutter template is located
+    :param output_dir: the folder where the live preview shall be served
+    :param config_file: settings for the cookiecutter template
+    :param min_delay: wait at least this many seconds, before the template will be rendered again
+    """
 
     def __init__(self, template_dir: Path, output_dir: Path, config_file: Path, min_delay=5.0):
         super().__init__()
