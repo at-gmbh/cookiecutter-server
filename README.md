@@ -5,11 +5,41 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/cookiecutter-server)](https://pypi.org/project/cookiecutter-server/)
 [![PyPI - License](https://img.shields.io/pypi/l/personio-py)](https://github.com/at-gmbh/cookiecutter-server/blob/master/LICENSE)
 
-A local development server to get live previews of cookiecutter templates.
+A local development server to get live previews of [cookiecutter templates](https://github.com/cookiecutter/cookiecutter).
+
+Are there too many code paths in your cookiecutter templates? You need an easy way to check what your template looks like with different parameters? cookiecutter-server got you covered! It's a process that watches the source folder of your template and serves the rendered template in a different folder. Whenever you make a change in your template or select different parameters, the rendered template gets updated automatically.
 
 ## Getting Started
 
-...
+Install cookiecutter-server with
+
+    pip install cookiecutter-server
+
+This will make the `cc_server` command available on your terminal. Test it with
+
+    cc_server --help
+
+In case the command was not registered, you can use `python -m cc_server` instead.
+
+Now switch to your cookiecutter template folder and run
+
+    cc_server .
+
+This will launch cookiecutter-server in the current folder and render the template in a new folder named `serve` under the current folder. Of course, you can also provide custom paths, if you prefer:
+
+    cc_server path/to/cookiecutter -o path/to/output
+
+The server process will now watch your template folder for changes. Please make a change in one of your template files and save the file. On the terminal, cc_server will tell you
+
+> updating due to change in {changed file}
+
+Now open this file in the output folder; your changes have already been applied. If you don't see the changes, please re-open the file or use an editor that automatically updates files when they change on disk, like PyCharm or VSCode.
+
+How do you change your template parameters? In your cookiecutter template folder, a new file named `cookiecutter-server.yml` was created, which contains all the parameters of your template. Change the parameters to your liking and save the file, cookiecutter-server will immediately update the contents of the output folder.
+
+To stop the server, use Ctrl+C on your terminal.
+
+If you're having trouble with cookiecutter-server, please have a look at the [open issues](https://github.com/at-gmbh/cookiecutter-server/issues) and open a new one, if you can't find a solution.
 
 ## Contributing
 
