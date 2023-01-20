@@ -7,7 +7,7 @@ from typing import Dict, Optional, Union
 
 import typer
 import yaml
-from colorama import Fore
+from rich import print
 from cookiecutter.main import cookiecutter
 from dirsync import sync
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
@@ -29,7 +29,7 @@ app = typer.Typer(
 
 def version_callback(version: bool):
     if version:
-        typer.echo(f"{__title__} {__version__}")
+        print(f"{__title__} {__version__}")
         raise typer.Exit()
 
 
@@ -51,8 +51,9 @@ def main(template: Path = TemplatePath, output: Path = OutputPath, version: bool
     """
     A local development server to get live previews of cookiecutter templates
     """
-    typer.echo(f"starting {Fore.YELLOW}cookiecutter-server{Fore.RESET} "
-               f"(template: '{template}', output: '{output}')")
+    print(
+        f"starting [yellow]cookiecutter-server[/yellow] "
+        f"(template: '{template}', output: '{output}')")
     server = CookiecutterServer(
         template_dir=template,
         output_dir=output)
@@ -105,7 +106,7 @@ class CookiecutterServer:
         # start the watchdog
         self.observer.schedule(self.handler, self.template_dir, recursive=True)
         self.observer.start()
-        typer.echo("template is ready, watching for changes")
+        print("template is ready, watching for changes")
         try:
             while not self.signal_stop:
                 time.sleep(0.1)
@@ -114,7 +115,7 @@ class CookiecutterServer:
         finally:
             self.observer.stop()
             self.observer.join(1.0)
-        typer.echo(f"{Fore.YELLOW}cookiecutter-server{Fore.RESET} terminated")
+        print("[yellow]cookiecutter-server[/yellow] terminated")
 
     @classmethod
     def _init_config(cls, template_dir: Path, config_file: Path = None):
@@ -171,8 +172,8 @@ class TemplateUpdate(FileSystemEventHandler):
             now = time.time()
             # don't update too frequently
             if now - self.last_sync > self.min_delay:
-                typer.echo(f"{Fore.GREEN}updating{Fore.RESET} due to change in "
-                           f"'{path.relative_to(self.template_dir)}'")
+                rel_path = path.relative_to(self.template_dir)
+                print(f"[green]updating[/green] due to change in '{rel_path}'")
                 self.settings = self.read_config()
                 self.sync_output()
                 self.last_sync = now
