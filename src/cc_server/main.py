@@ -7,9 +7,9 @@ from typing import Dict, Optional, Union
 
 import typer
 import yaml
-from rich import print
 from cookiecutter.main import cookiecutter
 from dirsync import sync
+from rich import print
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 from yaml import FullLoader
