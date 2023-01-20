@@ -166,8 +166,7 @@ class TemplateUpdate(FileSystemEventHandler):
 
     def on_any_event(self, event: FileSystemEvent):
         path = Path(event.src_path)
-        # ignore temporary files
-        if not path.name.endswith('~'):
+        if self.is_change_relevant(path):
             logger.debug(f"change detected: {event}")
             now = time.time()
             # don't update too frequently
@@ -177,6 +176,19 @@ class TemplateUpdate(FileSystemEventHandler):
                 self.settings = self.read_config()
                 self.sync_output()
                 self.last_sync = now
+
+    def is_change_relevant(self, path: Path) -> bool:
+        if path.name.endswith('~'):
+            logger.debug("ignoring temporary files (ending with ~")
+            return False
+        if self.path_is_relative_to(path, self.output_dir):
+            logger.debug("ignoring changes in the output directory")
+            return False
+        rel_path = path.relative_to(self.template_dir)
+        if rel_path.parts[0].startswith('.'):
+            logger.debug("ignoring changes to dot-files in the template's root folder")
+            return False
+        return True
 
     def read_config(self) -> Optional[Dict]:
         if self.config_file.is_file():
@@ -198,6 +210,14 @@ class TemplateUpdate(FileSystemEventHandler):
             extra_context=self.settings,
             no_input=True,
             output_dir=str(output_dir))
+
+    @staticmethod
+    def path_is_relative_to(path: Path, other: Path) -> bool:
+        try:
+            path.relative_to(other)
+            return True
+        except ValueError:
+            return False
 
 
 if __name__ == "__main__":
