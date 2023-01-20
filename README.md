@@ -1,6 +1,6 @@
 # cookiecutter-server
 
-[![build](https://img.shields.io/github/workflow/status/at-gmbh/cookiecutter-server/build)](https://github.com/at-gmbh/cookiecutter-server/actions/workflows/build.yml)
+[![build](https://img.shields.io/github/actions/workflow/status/at-gmbh/cookiecutter-server/build.yml?branch=master)](https://github.com/at-gmbh/at-python-template/actions?query=branch%3Amaster+)
 [![PyPI](https://img.shields.io/pypi/v/cookiecutter-server)](https://pypi.org/project/cookiecutter-server/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/cookiecutter-server)](https://pypi.org/project/cookiecutter-server/)
 [![PyPI - License](https://img.shields.io/pypi/l/personio-py)](https://github.com/at-gmbh/cookiecutter-server/blob/master/LICENSE)
