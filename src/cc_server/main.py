@@ -7,9 +7,9 @@ from typing import Dict, Optional, Union
 
 import typer
 import yaml
-from colorama import Fore
 from cookiecutter.main import cookiecutter
 from dirsync import sync
+from rich import print
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 from yaml import FullLoader
@@ -29,7 +29,7 @@ app = typer.Typer(
 
 def version_callback(version: bool):
     if version:
-        typer.echo(f"{__title__} {__version__}")
+        print(f"{__title__} {__version__}")
         raise typer.Exit()
 
 
@@ -51,8 +51,9 @@ def main(template: Path = TemplatePath, output: Path = OutputPath, version: bool
     """
     A local development server to get live previews of cookiecutter templates
     """
-    typer.echo(f"starting {Fore.YELLOW}cookiecutter-server{Fore.RESET} "
-               f"(template: '{template}', output: '{output}')")
+    print(
+        f"starting [yellow]cookiecutter-server[/yellow] "
+        f"(template: '{template}', output: '{output}')")
     server = CookiecutterServer(
         template_dir=template,
         output_dir=output)
@@ -105,7 +106,7 @@ class CookiecutterServer:
         # start the watchdog
         self.observer.schedule(self.handler, self.template_dir, recursive=True)
         self.observer.start()
-        typer.echo("template is ready, watching for changes")
+        print("template is ready, watching for changes")
         try:
             while not self.signal_stop:
                 time.sleep(0.1)
@@ -114,7 +115,7 @@ class CookiecutterServer:
         finally:
             self.observer.stop()
             self.observer.join(1.0)
-        typer.echo(f"{Fore.YELLOW}cookiecutter-server{Fore.RESET} terminated")
+        print("[yellow]cookiecutter-server[/yellow] terminated")
 
     @classmethod
     def _init_config(cls, template_dir: Path, config_file: Path = None):
@@ -165,17 +166,29 @@ class TemplateUpdate(FileSystemEventHandler):
 
     def on_any_event(self, event: FileSystemEvent):
         path = Path(event.src_path)
-        # ignore temporary files
-        if not path.name.endswith('~'):
+        if self.is_change_relevant(path):
             logger.debug(f"change detected: {event}")
             now = time.time()
             # don't update too frequently
             if now - self.last_sync > self.min_delay:
-                typer.echo(f"{Fore.GREEN}updating{Fore.RESET} due to change in "
-                           f"'{path.relative_to(self.template_dir)}'")
+                rel_path = path.relative_to(self.template_dir)
+                print(f"[green]updating[/green] due to change in '{rel_path}'")
                 self.settings = self.read_config()
                 self.sync_output()
                 self.last_sync = now
+
+    def is_change_relevant(self, path: Path) -> bool:
+        if path.name.endswith('~'):
+            logger.debug("ignoring temporary files (ending with ~")
+            return False
+        if self.path_is_relative_to(path, self.output_dir):
+            logger.debug("ignoring changes in the output directory")
+            return False
+        rel_path = path.relative_to(self.template_dir)
+        if rel_path.parts[0].startswith('.'):
+            logger.debug("ignoring changes to dot-files in the template's root folder")
+            return False
+        return True
 
     def read_config(self) -> Optional[Dict]:
         if self.config_file.is_file():
@@ -197,6 +210,14 @@ class TemplateUpdate(FileSystemEventHandler):
             extra_context=self.settings,
             no_input=True,
             output_dir=str(output_dir))
+
+    @staticmethod
+    def path_is_relative_to(path: Path, other: Path) -> bool:
+        try:
+            path.relative_to(other)
+            return True
+        except ValueError:
+            return False
 
 
 if __name__ == "__main__":

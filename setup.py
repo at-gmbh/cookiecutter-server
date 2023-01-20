@@ -79,12 +79,11 @@ setup(
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
     install_requires=[
-        'typer[all]>=0.3,<1.0',
+        'typer[all]>=0.6,<1.0',
         'cookiecutter>=1.7.2',
-        'watchdog>=2.1,<3.0',
+        'watchdog>=2.2,<3.0',
         'dirsync>=2.2,<3.0',
-        'PyYAML>=5.0,<6.0',
-        'colorama>=0.4,<1.0',
+        'PyYAML>=5.0,<7.0',
     ],
     tests_require=[
         'pytest',
@@ -113,5 +112,6 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
     ],
 )
