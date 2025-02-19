@@ -1,7 +1,6 @@
 # This file defines the requirements for a productive project deployment.
 # It should not contain dependencies for tests, developer tools, etc. (see requirements-dev.txt)
-typer[all]~=0.7.0
-cookiecutter~=2.1.1
-watchdog~=2.2.1
+typer[all]~=0.9.0
+watchdog~=3.0.0
 dirsync~=2.2.5
-PyYAML~=6.0
+PyYAML~=6.0.1
