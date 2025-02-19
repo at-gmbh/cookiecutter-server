@@ -179,14 +179,19 @@ class TemplateUpdate(FileSystemEventHandler):
 
     def is_change_relevant(self, path: Path) -> bool:
         if path.name.endswith('~'):
-            logger.debug("ignoring temporary files (ending with ~")
+            logger.debug("ignoring temporary files (ending with ~)")
             return False
         if self.path_is_relative_to(path, self.output_dir):
             logger.debug("ignoring changes in the output directory")
             return False
-        rel_path = path.relative_to(self.template_dir)
-        if rel_path.parts[0].startswith('.'):
-            logger.debug("ignoring changes to dot-files in the template's root folder")
+        # Safeguard against empty path parts
+        try:
+            rel_path = path.relative_to(self.template_dir)
+            if len(rel_path.parts) > 0 and rel_path.parts[0].startswith('.'):
+                logger.debug("ignoring changes to dot-files in the template's root folder")
+                return False
+        except ValueError as e:
+            logger.debug(f"Skipping path due to error: {e}")
             return False
         return True
 
