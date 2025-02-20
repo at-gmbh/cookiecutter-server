@@ -31,7 +31,11 @@ jobs:
       - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-          export PATH="$HOME/.local/bin:$PATH"
+          if [ $RUNNER_OS == 'Windows' ]; then
+            echo 'export PATH="$HOME/.local/bin:$PATH"' >> $GITHUB_ENV
+          else
+            echo 'PATH=$HOME/.local/bin:$PATH' >> $GITHUB_ENV
+          fi
 
       - name: Install dependencies
         run: |
