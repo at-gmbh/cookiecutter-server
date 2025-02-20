@@ -9,27 +9,25 @@ jobs:
     name: Deploy to PyPI
     runs-on: ubuntu-latest
     steps:
-      # Checkout repository
       - uses: actions/checkout@v4
 
-      # Set up Python environment
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: '3.9'
-
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          version: 'latest'
+          python-version: '3.13'
 
       - name: Install dependencies
+        env:
+          UV_PREVIEW: 1   # Enable preview mode for uv
         run: |
-          poetry install --no-dev
+          uv sync --without dev
 
       - name: Build package
+        env:
+          UV_PREVIEW: 1
         run: |
-          poetry build
+          uv build
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@master
