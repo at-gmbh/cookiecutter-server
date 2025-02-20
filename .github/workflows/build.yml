@@ -31,7 +31,20 @@ jobs:
       - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-          export PATH="$HOME/.local/bin:$PATH"
+        shell: bash
+
+      - name: Add Poetry to PATH (non-Windows)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Add Poetry to PATH (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          echo 'C:\Users\runneradmin\AppData\Roaming\Python\Scripts' >> $env:GITHUB_PATH
+
 
       - name: Install dependencies
         run: |
