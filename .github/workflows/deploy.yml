@@ -18,14 +18,10 @@ jobs:
           python-version: '3.13'
 
       - name: Install dependencies
-        env:
-          UV_PREVIEW: 1   # Enable preview mode for uv
         run: |
           uv sync --without dev
 
       - name: Build package
-        env:
-          UV_PREVIEW: 1
         run: |
           uv build
 

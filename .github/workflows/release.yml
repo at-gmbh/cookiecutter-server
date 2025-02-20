@@ -14,25 +14,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: '3.9'
-
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          version: 'latest'
+          python-version: '3.13'
 
       - name: Install dependencies
         run: |
-          poetry install --no-dev
+          uv sync
 
       - name: Build package
         run: |
-          poetry build
-          cd dist
-          echo "WHEEL=$(ls *.whl)" >> $GITHUB_ENV
+          uv build
+          echo "WHEEL=$(ls dist/*.whl)" >> $GITHUB_ENV
 
       - name: Create Release
         id: create_release
@@ -44,18 +39,15 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: true
           prerelease: false
-      # upload the wheel to the draft release
+
       - name: Upload Release Asset
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/${{ env.WHEEL }}
-          asset_name: ${{ env.WHEEL }}
+          asset_path: ${{ env.WHEEL }}
+          asset_name: $(basename ${{ env.WHEEL }})
           asset_content_type: application/zip
-      # release on TestPyPI (for release on regular PyPI, see deploy.yml)
+
       - name: Publish Package to TestPyPI
         uses: pypa/gh-action-pypi-publish@master
         with:

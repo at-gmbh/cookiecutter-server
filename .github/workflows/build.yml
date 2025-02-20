@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ['3.9', '3.13']
+        python-version: [3.9, 3.13]
         os: [ubuntu-latest, windows-latest]
     name: Test & Build (Python ${{ matrix.python-version }} on ${{ matrix.os }})
     steps:
@@ -29,11 +29,9 @@ jobs:
           version: 'latest'
           python-version: ${{ matrix.python-version }}
 
-      - name: Install Dependencies
-        env:
-          UV_PREVIEW: 1
+      - name: Install dependencies
         run: |
-          uv sync
+          uv sync --dev
 
       - name: Lint with flake8
         run: |
@@ -44,13 +42,11 @@ jobs:
         run: |
           uv run pytest --cov-report term --cov-report xml --cov=src tests
 
-      - name: Build a Distribution Package (Wheel)
-        env:
-          UV_PREVIEW: 1
+      - name: Build a distribution package (wheel)
         run: |
           uv build
 
-      - name: Store Distribution Package
+      - name: Store distribution package
         uses: actions/upload-artifact@v4
         with:
           name: cookiecutter-server_${{ matrix.python-version }}_${{ matrix.os }}
