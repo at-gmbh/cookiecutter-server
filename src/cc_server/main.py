@@ -178,6 +178,7 @@ class TemplateUpdate(FileSystemEventHandler):
                 self.last_sync = now
 
     def is_change_relevant(self, path: Path) -> bool:
+        logger.debug(f"Checking relevance for path: {path}")
         if path.name.endswith('~'):
             logger.debug("ignoring temporary files (ending with ~)")
             return False
@@ -203,6 +204,7 @@ class TemplateUpdate(FileSystemEventHandler):
             logger.warning(f"config file {self.config_file} was not found")
 
     def sync_output(self):
+        logger.debug("Sync output triggered")
         with TemporaryDirectory() as temp_dir:
             self.render_template(temp_dir)
             sync(temp_dir, self.output_dir, 'sync', content=True, purge=True,

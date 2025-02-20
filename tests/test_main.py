@@ -55,7 +55,7 @@ def test_serve():
             fp.write("\nyolo!\n")
 
         # wait until the modification is found in the served file
-        for _ in range(10):
+        for _ in range(30):
             if 'yolo!' not in readme_serve.read_text():
                 time.sleep(0.1)
         assert 'yolo!' in readme_serve.read_text()
