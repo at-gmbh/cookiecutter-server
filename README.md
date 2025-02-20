@@ -69,7 +69,7 @@ Before contributing code, please set up the pre-commit hooks to reduce errors an
 
 This project is released on [PyPI](https://pypi.org/project/cookiecutter-server/). Most of the tedious steps that are required to test & publish your release are automated by [CI pipelines](https://github.com/at-gmbh/cookiecutter-server/actions). All you have to do is to write your code and when the time comes to make a release, please follow these steps:
 
-* update the program version in [`src/cc_server/version.py`](./src/cc_server/version.py)
+* update the program version in [`src/cc_server/version.py`](src/cookiecutter_server/version.py)
 * write a summary of your changes in [`CHANGELOG.md`](./CHANGELOG.md)
 * add a tag on the master branch with the new version number preceded by the letter `v`, e.g. for version 1.0.0 the tag would be `v1.0.0`. To tag the head of the current branch, use `git tag v1.0.0`
 * push your changes to GitHub and don't forget to push the tag with `git push origin v1.0.0`

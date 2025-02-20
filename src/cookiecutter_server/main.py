@@ -15,7 +15,7 @@ from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 from yaml import FullLoader
 
-from cc_server import __title__, __version__
+from cookiecutter_server import __title__, __version__
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d [%(levelname)s]: %(message)s",
                     level=logging.WARNING)
