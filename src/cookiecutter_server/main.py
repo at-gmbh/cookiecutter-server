@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import time
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -14,7 +15,7 @@ from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 from yaml import FullLoader
 
-from cc_server import __title__, __version__
+from cookiecutter_server import __title__, __version__
 
 logging.basicConfig(format="%(asctime)s.%(msecs)03d [%(levelname)s]: %(message)s",
                     level=logging.WARNING)
@@ -91,7 +92,7 @@ class CookiecutterServer:
 
     def __init__(self, template_dir: Path, output_dir: Path, config_file: Path = None,
                  min_delay=5.0):
-        self.template_dir = template_dir
+        self.template_dir = template_dir.resolve()
         self.output_dir = output_dir
         self.config_file = self._init_config(template_dir, config_file)
         self.observer = Observer()
@@ -171,11 +172,17 @@ class TemplateUpdate(FileSystemEventHandler):
             now = time.time()
             # don't update too frequently
             if now - self.last_sync > self.min_delay:
-                rel_path = path.relative_to(self.template_dir)
-                print(f"[green]updating[/green] due to change in '{rel_path}'")
-                self.settings = self.read_config()
-                self.sync_output()
-                self.last_sync = now
+                try:
+                    rel_path = os.path.relpath(path.resolve(), self.template_dir)
+                    if rel_path.startswith('..'):
+                        logger.debug(f"Path {path} is outside the template directory")
+                        return
+                    print(f"[green]updating[/green] due to change in '{rel_path}'")
+                    self.settings = self.read_config()
+                    self.sync_output()
+                    self.last_sync = now
+                except ValueError as e:
+                    logger.debug(f"Skipping path due to error: {e}")
 
     def is_change_relevant(self, path: Path) -> bool:
         if path.name.endswith('~'):
@@ -184,9 +191,15 @@ class TemplateUpdate(FileSystemEventHandler):
         if self.path_is_relative_to(path, self.output_dir):
             logger.debug("ignoring changes in the output directory")
             return False
-        rel_path = path.relative_to(self.template_dir)
-        if rel_path.parts[0].startswith('.'):
-            logger.debug("ignoring changes to dot-files in the template's root folder")
+        try:
+            rel_path = os.path.relpath(path.resolve(), self.template_dir)
+            if rel_path.startswith('..'):
+                return False
+            if Path(rel_path).parts[0].startswith('.'):
+                logger.debug("ignoring changes to dot-files in the template's root folder")
+                return False
+        except ValueError as e:
+            logger.debug(f"Skipping path due to error: {e}")
             return False
         return True
 

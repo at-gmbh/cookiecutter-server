@@ -8,7 +8,7 @@ from threading import Thread
 
 from typer.testing import CliRunner
 
-from cc_server.main import CookiecutterServer, app
+from cookiecutter_server.main import CookiecutterServer, app
 from tests import test_template_dir
 
 runner = CliRunner()
