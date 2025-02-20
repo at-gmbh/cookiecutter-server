@@ -30,7 +30,7 @@ packages = [
 cc_server = "cc_server.main:app"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<=3.13"
+python = ">=3.9,<3.14"
 typer = {extras = ["all"], version = "^0.15.1"}
 cookiecutter = "^2.6.0"
 watchdog = "^6.0.0"
