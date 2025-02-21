@@ -17,33 +17,54 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [ 3.9, 3.13 ]
-        os: [ ubuntu-latest, windows-latest ]
+        python-version: [3.9, 3.13]
+        os: [ubuntu-latest, windows-latest]
     name: Test & Build (Python ${{ matrix.python-version }} on ${{ matrix.os }})
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+        shell: bash
+
+      - name: Add Poetry to PATH (non-Windows)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Add Poetry to PATH (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          echo 'C:\Users\runneradmin\AppData\Roaming\Python\Scripts' >> $env:GITHUB_PATH
+
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install build
-          pip install -r requirements.txt -r requirements-dev.txt
-          pip install -e .
+          poetry install --with dev
+
       - name: Lint with flake8
         run: |
-          flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 src --count --exit-zero --max-complexity=10 --max-line-length=100 --ignore=F401,W504 --statistics
+          poetry run flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
+          poetry run flake8 src --count --exit-zero --max-complexity=10 --max-line-length=100 --ignore=F401,W504 --statistics
+
       - name: Test with pytest
         run: |
-          pytest --cov-report term --cov-report xml --cov=src tests
+          poetry run pytest --cov-report term --cov-report xml --cov=src tests
+
       - name: Build a distribution package (wheel)
         run: |
-          python -m build
+          poetry build
+
       - name: Store distribution package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v2
         with:
-          name: personio-py_${{ matrix.python-version }}_${{ matrix.os }}
+          name: cookiecutter-server_${{ matrix.python-version }}_${{ matrix.os }}
           path: dist/
