@@ -1,5 +1,5 @@
 from importlib.metadata import metadata, version, PackageNotFoundError
-
+__copyright__ = "© 2025 Alexander Thamm GmbH"
 try:
     __version__ = version("cookiecutter-server")
     meta = metadata("cookiecutter-server")

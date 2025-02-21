@@ -173,10 +173,16 @@ class TemplateUpdate(FileSystemEventHandler):
             # don't update too frequently
             if now - self.last_sync > self.min_delay:
                 try:
-                    rel_path = os.path.relpath(path.resolve(), self.template_dir)
-                    if rel_path.startswith('..'):
+                    # Use relative_to if possible; fallback to relpath for cross-platform compatibility
+                    try:
+                        rel_path = path.relative_to(self.template_dir)
+                    except ValueError:
+                        rel_path = os.path.relpath(path.resolve(), self.template_dir)
+
+                    if str(rel_path).startswith('..'):
                         logger.debug(f"Path {path} is outside the template directory")
                         return
+
                     print(f"[green]updating[/green] due to change in '{rel_path}'")
                     self.settings = self.read_config()
                     self.sync_output()
@@ -185,19 +191,30 @@ class TemplateUpdate(FileSystemEventHandler):
                     logger.debug(f"Skipping path due to error: {e}")
 
     def is_change_relevant(self, path: Path) -> bool:
+        logger.debug(f"Checking relevance for path: {path}")
+
+        # Ignore temporary files
         if path.name.endswith('~'):
-            logger.debug("ignoring temporary files (ending with ~")
+            logger.debug("ignoring temporary files (ending with ~)")
             return False
+
+        # Ignore changes in the output directory
         if self.path_is_relative_to(path, self.output_dir):
             logger.debug("ignoring changes in the output directory")
             return False
+
         try:
-            rel_path = os.path.relpath(path.resolve(), self.template_dir)
-            if rel_path.startswith('..'):
-                return False
-            if Path(rel_path).parts[0].startswith('.'):
+            # Use relative_to if possible; fallback to relpath for cross-platform compatibility
+            try:
+                rel_path = path.relative_to(self.template_dir)
+            except ValueError:
+                rel_path = os.path.relpath(path.resolve(), self.template_dir)
+
+            # Ignore dot-files in the template's root folder
+            if len(Path(rel_path).parts) > 0 and Path(rel_path).parts[0].startswith('.'):
                 logger.debug("ignoring changes to dot-files in the template's root folder")
                 return False
+
         except ValueError as e:
             logger.debug(f"Skipping path due to error: {e}")
             return False
@@ -211,6 +228,7 @@ class TemplateUpdate(FileSystemEventHandler):
             logger.warning(f"config file {self.config_file} was not found")
 
     def sync_output(self):
+        logger.debug("Sync output triggered")
         with TemporaryDirectory() as temp_dir:
             self.render_template(temp_dir)
             sync(temp_dir, self.output_dir, 'sync', content=True, purge=True,

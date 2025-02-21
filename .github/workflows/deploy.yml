@@ -1,5 +1,6 @@
 name: deploy
 
+# will be triggered when a new release is published (draft releases are ignored)
 on:
   release:
     types: [published]
@@ -31,7 +32,8 @@ jobs:
         run: |
           poetry build
 
+      # Publish to PyPI using a supported version
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
