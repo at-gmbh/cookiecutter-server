@@ -64,7 +64,7 @@ jobs:
           poetry build
 
       - name: Store distribution package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: cookiecutter-server_${{ matrix.python-version }}_${{ matrix.os }}
           path: dist/
