@@ -7,7 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased](https://github.com/at-gmbh/cookiecutter-server/compare/v1.0.0...HEAD)
 
 - ...
-## [1.2.0](https://github.com/at-gmbh/cookiecutter-server/tree/v1.1.0) - 2025-02-20
+- ## [1.2.1](https://github.com/at-gmbh/cookiecutter-server/tree/v1.2.1) - 2025-02-21
+- fix version and issues in the deploy-yml and release.yml
+## [1.2.0](https://github.com/at-gmbh/cookiecutter-server/tree/v1.2.0) - 2025-02-20
 - Migrate poetry instead of pip and setup.py
 - increase dependency version
 - update python version
