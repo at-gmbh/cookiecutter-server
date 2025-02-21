@@ -43,33 +43,37 @@ If you're having trouble with cookiecutter-server, please have a look at the [op
 
 ## Contributing
 
-To set up your local development environment, please use a fresh virtual environment, then run:
+To set up your local development environment, please use Poetry:
 
-    pip install -r requirements.txt -r requirements-dev.txt
-    pip install -e .
+    # Install Poetry (if not already installed)
+    curl -sSL https://install.python-poetry.org | python3 -
+    
+    # Install dependencies
+    poetry install --with dev
+    
+    # Activate the virtual environment
+    poetry shell
+    
+    # Launch the server
+    cc_server --help`
 
-You can now launch the server from the command line; try `cc_server --help`.
+We use `pytest` as the test framework. To execute the tests, please run:
 
-We use `pytest` as test framework. To execute the tests, please run
+    poetry run pytest
+To build a distribution package (wheel), please use:
 
-    python setup.py test
+    poetry build
+Before contributing code, please set up the `pre-commit` hooks to reduce errors and ensure consistency:
 
-To build a distribution package (wheel), please use
+    poetry run pre-commit install
 
-    python setup.py dist
 
-this will clean up the build folder and then run the `bdist_wheel` command.
-
-Before contributing code, please set up the pre-commit hooks to reduce errors and ensure consistency
-
-    pip install -U pre-commit
-    pre-commit install
 
 ### PyPI Release
 
 This project is released on [PyPI](https://pypi.org/project/cookiecutter-server/). Most of the tedious steps that are required to test & publish your release are automated by [CI pipelines](https://github.com/at-gmbh/cookiecutter-server/actions). All you have to do is to write your code and when the time comes to make a release, please follow these steps:
 
-* update the program version in [`src/cc_server/version.py`](./src/cc_server/version.py)
+* Update the program version in pyproject.toml [`pyproject.toml`](pyproject.toml)
 * write a summary of your changes in [`CHANGELOG.md`](./CHANGELOG.md)
 * add a tag on the master branch with the new version number preceded by the letter `v`, e.g. for version 1.0.0 the tag would be `v1.0.0`. To tag the head of the current branch, use `git tag v1.0.0`
 * push your changes to GitHub and don't forget to push the tag with `git push origin v1.0.0`
@@ -80,12 +84,13 @@ This project is released on [PyPI](https://pypi.org/project/cookiecutter-server/
 ## Contact
 
 Sebastian Straub (sebastian.straub [at] alexanderthamm.com)
+Christian Baur (christian.baur [at] alexanderthamm.com)
 
 Developed with ❤ at [Alexander Thamm GmbH](https://www.alexanderthamm.com/)
 
 ## License
 
-    Copyright 2021 Alexander Thamm GmbH
+    Copyright 2025 Alexander Thamm GmbH
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
