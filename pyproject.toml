@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cookiecutter-server"
-version = "1.2.1"
+version = "1.2.2"
 description = "A local development server to get live previews of [cookiecutter templates](https://github.com/cookiecutter/cookiecutter)."
 authors = ["Sebastian Straub <sebastian.straub@alexanderthamm.com>","Christian Baur <christian.baur@alexanderthamm.com>"]
 license = "Apache License 2.0"
