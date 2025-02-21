@@ -1,0 +1,50 @@
+[tool.poetry]
+name = "cookiecutter-server"
+version = "1.2.0"
+description = "A local development server to get live previews of [cookiecutter templates](https://github.com/cookiecutter/cookiecutter)."
+authors = ["Sebastian Straub <sebastian.straub@alexanderthamm.com>","Christian Baur <christian.baur@alexanderthamm.com>"]
+license = "Apache License 2.0"
+readme = "README.md"
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Environment :: Console",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13"
+]
+packages = [
+    { include = "cc_server", from = "src" }
+]
+
+
+[tool.poetry.scripts]
+cc_server = "cc_server.main:app"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.14"
+typer = {extras = ["all"], version = "^0.15.1"}
+cookiecutter = "^2.6.0"
+watchdog = "^6.0.0"
+dirsync = "^2.2.5"
+pyyaml = "^6.0.2"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+pytest-cov = "^6.0.0"
+pre-commit = "^4.1.0"
+flake8 = "^7.1.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

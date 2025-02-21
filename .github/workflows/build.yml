@@ -13,41 +13,58 @@ on:
       - '*.md'
 
 jobs:
-
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [ 3.7, 3.11 ]
-        os: [ ubuntu-latest, windows-latest ]
+        python-version: [3.9, 3.13]
+        os: [ubuntu-latest, windows-latest]
     name: Test & Build (Python ${{ matrix.python-version }} on ${{ matrix.os }})
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+        shell: bash
+
+      - name: Add Poetry to PATH (non-Windows)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Add Poetry to PATH (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          echo 'C:\Users\runneradmin\AppData\Roaming\Python\Scripts' >> $env:GITHUB_PATH
+
+
       - name: Install dependencies
         run: |
-          # upgrade pip, install flake8 (for linting), pytest (for testing), wheel (for packaging) and the personio-py package
-          python -m pip install --upgrade pip
-          pip install wheel
-          pip install -r requirements.txt -r requirements-dev.txt
-          pip install -e .
+          poetry install --with dev
+
       - name: Lint with flake8
         run: |
-          # stop the build if there are Python syntax errors or undefined names
-          flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings. ignore unused imports in __init__.py (F401) and line break after binary operator (W504)
-          flake8 src --count --exit-zero --max-complexity=10 --max-line-length=100 --ignore=F401,W504 --statistics
+          poetry run flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
+          poetry run flake8 src --count --exit-zero --max-complexity=10 --max-line-length=100 --ignore=F401,W504 --statistics
+
       - name: Test with pytest
         run: |
-          pytest --cov-report term --cov-report xml --cov=src tests
+          poetry run pytest --cov-report term --cov-report xml --cov=src tests
+
       - name: Build a distribution package (wheel)
         run: |
-          python setup.py sdist bdist_wheel
+          poetry build
+
       - name: Store distribution package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: personio-py_${{ matrix.python-version }}_${{ matrix.os }}
+          name: cookiecutter-server_${{ matrix.python-version }}_${{ matrix.os }}
           path: dist/
